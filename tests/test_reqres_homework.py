@@ -2,20 +2,54 @@ import json
 
 import allure
 import requests
+from allure_commons.types import AttachmentType
 from jsonschema import validate
 
 from tests.schemas import create_json_schema, update_json_schema, register_json_schema, \
     register_unsuccessful_json_schema
 
-users_url = 'https://reqres.in/api/users'
-register_url = 'https://reqres.in/api/register'
-login_url = 'https://reqres.in/api/login'
+base_url = 'https://reqres.in/api'
 
 
 def api_get(url, **kwargs):
     with allure.step('API get request'):
-        response = requests.get('https://reqres.in/api' + url, **kwargs)
-        allure.attach(body=json.dumps(response.json(), indent=4, ensure_ascii=True))
+        response = requests.get(base_url + url, **kwargs)
+        allure.attach(
+            body=json.dumps(response.json(), indent=4, ensure_ascii=True),
+            name='response',
+            attachment_type=AttachmentType.JSON,
+            extension='.json')
+        return response
+
+
+def api_post(url, payload, **kwargs):
+    with allure.step('API post request'):
+        response = requests.post(base_url + url, payload, **kwargs)
+        allure.attach(
+            body=json.dumps(response.json(), indent=4, ensure_ascii=True),
+            name='response',
+            attachment_type=AttachmentType.JSON,
+            extension='.json'
+        )
+        return response
+
+
+def api_put(url, payload, **kwargs):
+    with allure.step('API post request'):
+        response = requests.put(base_url + url, payload, **kwargs)
+        allure.attach(
+            body=json.dumps(response.json(), indent=4, ensure_ascii=True),
+            name='response',
+            attachment_type=AttachmentType.JSON,
+            extension='.json'
+        )
+        return response
+
+
+def api_delete(url, **kwargs):
+    with allure.step('API delete request'):
+        response = requests.delete(base_url + url, **kwargs)
+
         return response
 
 
@@ -53,53 +87,45 @@ def test_user_not_found_empty_response_body():
 
 
 def test_create_status_code():
-    payload = {'name': 'morpheus', 'job': 'leader'}
-    response = requests.post(users_url, json=payload)
+    response = api_post(url='/users', payload={'name': 'morpheus', 'job': 'leader'})
     assert response.status_code == 201
 
 
 def test_create_json_schema():
-    payload = {'name': 'morpheus', 'job': 'leader'}
-    response_body = requests.post(users_url, json=payload).json()
+    response_body = api_post(url='/users', payload={'name': 'morpheus', 'job': 'leader'}).json()
     validate(response_body, create_json_schema)
 
 
 def test_create_response_data():
     name = 'morpheus'
     job = 'leader'
-    payload = {'name': name, 'job': job}
-    response_body = requests.post(users_url, json=payload).json()
+    response_body = api_post(url='/users', payload={'name': name, 'job': job}).json()
     assert response_body['name'] == name
     assert response_body['job'] == job
 
 
 def test_update_status_code():
-    update_url = users_url + '/2'
-    payload = {'name': 'morpheus', 'job': 'zion resident'}
-    response = requests.put(update_url, json=payload)
+    response = api_post(url='/users/2', payload={'name': 'morpheus', 'job': 'zion resident'})
     assert response.status_code == 200
 
 
 def test_update_json_schema():
-    update_url = users_url + '/2'
-    payload = {'name': 'morpheus', 'job': 'zion resident'}
-    response_body = requests.put(update_url, json=payload).json()
+    response = api_put(url='/users/2', payload={'name': 'morpheus', 'job': 'zion resident'})
+    response_body = response.json()
     validate(response_body, update_json_schema)
 
 
 def test_update_response_data():
-    update_url = users_url + '/2'
     name = 'morpheus'
     job = 'zion resident'
-    payload = {'name': name, 'job': job}
-    response_body = requests.put(update_url, json=payload).json()
+    response = api_put(url='/users/2', payload={'name': name, 'job': job})
+    response_body = response.json()
     assert response_body['name'] == name
     assert response_body['job'] == job
 
 
 def test_delete_status_code():
-    delete_url = users_url + '/2'
-    response = requests.delete(delete_url)
+    response = api_delete(url='/users/2')
     assert response.status_code == 204
 
 
