@@ -1,55 +1,8 @@
-import json
-import allure
-import requests
-from allure_commons.types import AttachmentType
 from jsonschema import validate
 
-from tests.schemas import create_json_schema, update_json_schema, register_json_schema, \
+from tests.json_schema_vars import create_json_schema, update_json_schema, register_json_schema, \
     register_unsuccessful_json_schema
-
-base_url = 'https://reqres.in/api'
-
-
-def api_get(url, **kwargs):
-    with allure.step('API get request'):
-        response = requests.get(base_url + url, **kwargs)
-        allure.attach(
-            body=json.dumps(response.json(), indent=4, ensure_ascii=True),
-            name='response',
-            attachment_type=AttachmentType.JSON,
-            extension='.json')
-        return response
-
-
-def api_post(url, payload, **kwargs):
-    with allure.step('API post request'):
-        response = requests.post(base_url + url, payload, **kwargs)
-        allure.attach(
-            body=json.dumps(response.json(), indent=4, ensure_ascii=True),
-            name='response',
-            attachment_type=AttachmentType.JSON,
-            extension='.json'
-        )
-        return response
-
-
-def api_put(url, payload, **kwargs):
-    with allure.step('API post request'):
-        response = requests.put(base_url + url, payload, **kwargs)
-        allure.attach(
-            body=json.dumps(response.json(), indent=4, ensure_ascii=True),
-            name='response',
-            attachment_type=AttachmentType.JSON,
-            extension='.json'
-        )
-        return response
-
-
-def api_delete(url, **kwargs):
-    with allure.step('API delete request'):
-        response = requests.delete(base_url + url, **kwargs)
-
-        return response
+from tests.utils.api_methods import api_get, api_post, api_put, api_delete
 
 
 def test_list_users_status_code():
