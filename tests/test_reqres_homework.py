@@ -1,3 +1,6 @@
+import json
+
+import allure
 import requests
 from jsonschema import validate
 
@@ -9,39 +12,43 @@ register_url = 'https://reqres.in/api/register'
 login_url = 'https://reqres.in/api/login'
 
 
+def api_get(url, **kwargs):
+    with allure.step('API get request'):
+        response = requests.get('https://reqres.in/api' + url, **kwargs)
+        allure.attach(body=json.dumps(response.json(), indent=4, ensure_ascii=True))
+        return response
+
+
 def test_list_users_status_code():
-    response = requests.get(users_url, params={'page': 2})
+    response = api_get('/users', params={'page': 2})
     assert response.status_code == 200
 
 
 def test_list_users_number_per_page():
-    response = requests.get(users_url, params={'page': 2})
+    response = api_get('/users', params={'page': 2})
     body = response.json()
     number_per_page = len(body['data'])
     assert number_per_page == body['per_page']
 
 
 def test_single_user_status_code():
-    single_user_url = users_url + '/2'
-    response = requests.get(single_user_url)
+    response = api_get('/users/2')
     assert response.status_code == 200
 
 
 def test_single_user_response_id():
-    single_user_url = users_url + '/2'
-    body = requests.get(single_user_url).json()
+    body = api_get('/users/2').json()
     assert body['data']['id'] == 2
 
 
 def test_user_not_found_status_code():
-    user_not_found_url = users_url + '/23'
-    response = requests.get(user_not_found_url)
+    response = api_get('/users/23')
     assert response.status_code == 404
 
 
 def test_user_not_found_empty_response_body():
-    user_not_found_url = users_url + '/23'
-    response_body = requests.get(user_not_found_url).json()
+    response = api_get('/users/23')
+    response_body = response.json()
     assert response_body == {}
 
 

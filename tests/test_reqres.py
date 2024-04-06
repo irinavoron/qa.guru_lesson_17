@@ -2,7 +2,7 @@ import json
 import requests
 from jsonschema import validate
 
-from tests.schemas import post_users
+from tests.schemas import post_users_json_schema
 
 
 # users_url = "https://reqres.in/api/users"
@@ -30,7 +30,7 @@ def test_schema_from_var():
     response = requests.post(url, data=payload)
     body = response.json()
 
-    validate(body, schema=post_users)
+    validate(body, schema=post_users_json_schema)
 
 
 def test_data_in_response():
