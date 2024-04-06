@@ -1,5 +1,4 @@
 import json
-
 import allure
 import requests
 from allure_commons.types import AttachmentType
@@ -105,7 +104,7 @@ def test_create_response_data():
 
 
 def test_update_status_code():
-    response = api_post(url='/users/2', payload={'name': 'morpheus', 'job': 'zion resident'})
+    response = api_put(url='/users/2', payload={'name': 'morpheus', 'job': 'zion resident'})
     assert response.status_code == 200
 
 
@@ -130,42 +129,40 @@ def test_delete_status_code():
 
 
 def test_register_successful_status_code():
-    payload = {'email': "eve.holt@reqres.in", 'password': "pistol"}
-    response = requests.post(register_url, json=payload)
+    response = api_post(url='/register', payload={'email': "eve.holt@reqres.in", 'password': "pistol"})
     assert response.status_code == 200
 
 
 def test_register_successful_json_schema():
-    payload = {'email': "eve.holt@reqres.in", 'password': "pistol"}
-    response_body = requests.post(register_url, json=payload).json()
+    response = api_post(
+        url='/register',
+        payload={'email': "eve.holt@reqres.in", 'password': "pistol"}
+    )
+    response_body = response.json()
     validate(response_body, register_json_schema)
 
 
 def test_register_unsuccessful_status_code():
-    payload = {'email': "sydney@fife"}
-    response = requests.post(register_url, json=payload)
+    response = api_post(
+        url='/register',
+        payload={'email': "sydney@fife"}
+    )
     assert response.status_code == 400
 
 
 def test_register_unsuccessful_json_schema():
-    payload = {'email': "sydney@fife"}
-    response_body = requests.post(register_url, json=payload).json()
+    response = api_post(
+        url='/register',
+        payload={'email': "sydney@fife"}
+    )
+    response_body = response.json()
     validate(response_body, schema=register_unsuccessful_json_schema)
 
 
 def test_register_unsuccessful_error_message():
-    payload = {'email': "sydney@fife"}
-    response_body = requests.post(register_url, json=payload).json()
+    response = api_post(
+        url='/register',
+        payload={'email': "sydney@fife"}
+    )
+    response_body = response.json()
     assert response_body['error'] == "Missing password"
-
-
-
-
-
-
-
-
-
-
-
-
