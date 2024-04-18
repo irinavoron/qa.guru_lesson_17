@@ -1,12 +1,14 @@
 import requests
 from jsonschema import validate
 
-from schemas import list_users_schema, single_user_schema, create_schema, update_schema
+from schemas import list_users_schema, single_user_schema, create_schema, update_schema, register_successful_schema, \
+    register_unsuccessful_schema
 
 url = 'https://reqres.in'
 endpoint_users = '/api/users'
 endpoint_single_user = '/api/users/2'
 endpoint_user_not_found = '/api/users/23'
+endpoint_register = '/api/register'
 
 
 def test_list_users_status_code():
@@ -90,8 +92,46 @@ def test_update_no_name_in_response_body():
     assert 'name' not in response_body
 
 
+def test_delete_status_code():
+    response = requests.delete(url + endpoint_single_user)
+
+    assert response.status_code == 204
 
 
+def test_register_successful_status_code():
+    response = requests.post(
+        url=url + endpoint_register,
+        json={'email': 'eve.holt@reqres.in', 'password': 'pistol'}
+    )
+
+    assert response.status_code == 200
+
+
+def test_register_successful_json_schema():
+    response_body = requests.post(
+        url=url + endpoint_register,
+        json={'email': 'eve.holt@reqres.in', 'password': 'pistol'}
+    ).json()
+
+    validate(response_body, register_successful_schema)
+
+
+def test_register_unsuccessful_status_code():
+    response = requests.post(url + endpoint_register, {'email': 'eve.holt@reqres.in'})
+
+    assert response.status_code == 400
+
+
+def test_register_unsuccessful_json_schema():
+    response_body = requests.post(url + endpoint_register, {'email': 'eve.holt@reqres.in'}).json()
+
+    validate(response_body, register_unsuccessful_schema)
+
+
+def test_register_unsuccessful_error_message():
+    response_body = requests.post(url + endpoint_register, {'email': 'eve.holt@reqres.in'}).json()
+
+    assert response_body['error'] == 'Missing password'
 
 
 
