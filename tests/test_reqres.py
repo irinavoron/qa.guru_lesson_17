@@ -1,28 +1,28 @@
 import requests
 from jsonschema import validate
 
-from schemas import list_users_schema, single_user_schema
+from schemas import list_users_schema, single_user_schema, create_schema, update_schema
 
 url = 'https://reqres.in'
-endpoint_list_users = '/api/users'
+endpoint_users = '/api/users'
 endpoint_single_user = '/api/users/2'
 endpoint_user_not_found = '/api/users/23'
 
 
 def test_list_users_status_code():
-    response = requests.get(url + endpoint_list_users, {'page': 2})
+    response = requests.get(url + endpoint_users, {'page': 2})
 
     assert response.status_code == 200
 
 
 def test_list_users_json_schema():
-    response_body = requests.get(url + endpoint_list_users, {'page': 2}).json()
+    response_body = requests.get(url + endpoint_users, {'page': 2}).json()
 
     validate(response_body, list_users_schema)
 
 
 def test_list_users_number_per_page():
-    response_body = requests.get(url + endpoint_list_users, {'page': 2}).json()
+    response_body = requests.get(url + endpoint_users, {'page': 2}).json()
 
     assert response_body['per_page'] == len(response_body['data'])
 
@@ -51,14 +51,47 @@ def test_user_not_found_empty_response_body():
     assert not response_body
 
 
+def test_create_status_code():
+    response = requests.post(url + endpoint_users, {'name': 'morpheus', 'job': 'leader'})
 
-# def test_body():
-#     name = 'morpheus'
-#     job = 'leader'
-#     response = requests.post(url, {'name': name, 'job': job})
-#     body = response.json()
-#     assert body['name'] == name
-#     assert body['job'] == job
+    assert response.status_code == 201
+
+
+def test_create_json_schema():
+    response_body = requests.post(url + endpoint_users, {'name': 'morpheus', 'job': 'leader'}).json()
+
+    validate(response_body, create_schema)
+
+
+def test_create_name_and_job_in_response():
+    name = 'morpheus'
+    job = 'leader'
+    response = requests.post(url + endpoint_users, {'name': name, 'job': job})
+    body = response.json()
+    assert body['name'] == name
+    assert body['job'] == job
+
+
+def test_update_status_code_put():
+    response = requests.put(url + endpoint_single_user, {'name': 'morpheus', 'job': 'zion resident'})
+
+    assert response.status_code == 200
+
+
+def test_update_json_schema():
+    response_body = requests.put(url + endpoint_single_user, {'name': 'morpheus', 'job': 'zion resident'}).json()
+
+    validate(response_body, update_schema)
+
+
+def test_update_no_name_in_response_body():
+    response_body = requests.put(url + endpoint_single_user, {'job': 'zion resident'}).json()
+
+    assert 'name' not in response_body
+
+
+
+
 
 
 
