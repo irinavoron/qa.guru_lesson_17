@@ -1,10 +1,10 @@
 [tool.poetry]
+package-mode = false
 name = "qa-guru-lesson-17"
 version = "0.1.0"
 description = ""
 authors = ["Irina.Voron <yarutich.irina@gmail.com>"]
 readme = "README.md"
-packages = [{include = "qa"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
