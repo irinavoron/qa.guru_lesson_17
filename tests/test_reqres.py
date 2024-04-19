@@ -1,7 +1,6 @@
 from jsonschema import validate
 from schemas import list_users_schema, single_user_schema, create_schema, update_schema, register_successful_schema, \
     register_unsuccessful_schema
-
 from utils.api_methods import get_api_request, post_api_request, put_api_request, delete_api_request
 
 users = '/api/users'
