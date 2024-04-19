@@ -1,6 +1,5 @@
 from jsonschema import validate
-from schemas import list_users_schema, single_user_schema, create_schema, update_schema, register_successful_schema, \
-    register_unsuccessful_schema
+import schemas
 from utils.api_methods import get_api_request, post_api_request, put_api_request, delete_api_request
 
 users = '/api/users'
@@ -9,22 +8,15 @@ user_not_found = '/api/users/23'
 register = '/api/register'
 
 
-def test_list_users_status_code():
+def test_list_users_status_code_and_schema():
     response = get_api_request(
         endpoint=users,
         params={'page': 2}
     )
+    response_body = response.json()
 
     assert response.status_code == 200
-
-
-def test_list_users_json_schema():
-    response_body = get_api_request(
-        endpoint=users,
-        params={'page': 2}
-    ).json()
-
-    validate(response_body, list_users_schema)
+    validate(response_body, schemas.list_users_schema)
 
 
 def test_list_users_number_per_page():
@@ -36,16 +28,12 @@ def test_list_users_number_per_page():
     assert response_body['per_page'] == len(response_body['data'])
 
 
-def test_single_user_status_code():
+def test_single_user_status_code_and_schema():
     response = get_api_request(endpoint=single_user)
+    response_body = response.json()
 
     assert response.status_code == 200
-
-
-def test_single_user_json_schema():
-    response_body = get_api_request(endpoint=single_user).json()
-
-    validate(response_body, single_user_schema)
+    validate(response_body, schemas.single_user_schema)
 
 
 def test_user_not_found_status_code():
@@ -60,22 +48,15 @@ def test_user_not_found_empty_response_body():
     assert not response_body
 
 
-def test_create_status_code():
+def test_create_status_code_and_schema():
     response = post_api_request(
         endpoint=users,
         payload={'name': 'morpheus', 'job': 'leader'}
     )
+    response_body = response.json()
 
     assert response.status_code == 201
-
-
-def test_create_json_schema():
-    response_body = post_api_request(
-        endpoint=users,
-        payload={'name': 'morpheus', 'job': 'leader'}
-    ).json()
-
-    validate(response_body, create_schema)
+    validate(response_body, schemas.create_schema)
 
 
 def test_create_name_and_job_in_response():
@@ -90,22 +71,15 @@ def test_create_name_and_job_in_response():
     assert response_body['job'] == job
 
 
-def test_update_status_code_put():
+def test_update_status_code_and_schema():
     response = put_api_request(
         endpoint=single_user,
         payload={'name': 'morpheus', 'job': 'zion resident'}
     )
+    response_body = response.json()
 
     assert response.status_code == 200
-
-
-def test_update_json_schema():
-    response_body = put_api_request(
-        endpoint=single_user,
-        payload={'name': 'morpheus', 'job': 'zion resident'}
-    ).json()
-
-    validate(response_body, update_schema)
+    validate(response_body, schemas.update_schema)
 
 
 def test_update_no_name_in_response_body():
@@ -123,40 +97,26 @@ def test_delete_status_code():
     assert response.status_code == 204
 
 
-def test_register_successful_status_code():
+def test_register_successful_status_code_and_schema():
     response = post_api_request(
         endpoint=register,
         payload={'email': 'eve.holt@reqres.in', 'password': 'pistol'}
     )
+    response_body = response.json()
 
     assert response.status_code == 200
+    validate(response_body, schemas.register_successful_schema)
 
 
-def test_register_successful_json_schema():
-    response_body = post_api_request(
-        endpoint=register,
-        payload={'email': 'eve.holt@reqres.in', 'password': 'pistol'}
-    ).json()
-
-    validate(response_body, register_successful_schema)
-
-
-def test_register_unsuccessful_status_code():
+def test_register_unsuccessful_status_code_and_schema():
     response = post_api_request(
         endpoint=register,
         payload={'email': 'eve.holt@reqres.in'}
     )
+    response_body = response.json()
 
     assert response.status_code == 400
-
-
-def test_register_unsuccessful_json_schema():
-    response_body = post_api_request(
-        endpoint=register,
-        payload={'email': 'eve.holt@reqres.in'}
-    ).json()
-
-    validate(response_body, register_unsuccessful_schema)
+    validate(response_body, schemas.register_unsuccessful_schema)
 
 
 def test_register_unsuccessful_error_message():
