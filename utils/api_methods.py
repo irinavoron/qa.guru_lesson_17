@@ -28,3 +28,22 @@ def post_api_request(endpoint, payload):
             extension='.json'
         )
         return response
+
+
+def put_api_request(endpoint, payload):
+    with allure.step('API request'):
+        response = requests.put(url + endpoint, payload)
+        allure.attach(
+            body=json.dumps(response.json(), indent=4, ensure_ascii=True),
+            name='Response',
+            attachment_type=AttachmentType.JSON,
+            extension='.json'
+        )
+        return response
+
+
+def delete_api_request(endpoint):
+    with allure.step('API request'):
+        response = requests.delete(url + endpoint)
+
+        return response
