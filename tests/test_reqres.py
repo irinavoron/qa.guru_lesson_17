@@ -4,6 +4,7 @@ from jsonschema import validate
 import schemas
 import requests
 import allure
+from requests import Response
 
 base_url = 'https://reqres.in'
 users = '/api/users'
@@ -12,16 +13,21 @@ user_not_found = '/api/users/23'
 register = '/api/register'
 
 
-def api_request(endpoint, method, data=None, params=None):
-    url = base_url + endpoint
-    with allure.step("API request"):
-        response = requests.request(method, url, data=data, params=params)
+def response_attaching(response: Response):
+    if response.request.body:
         allure.attach(
             body=json.dumps(response.json(), indent=4, ensure_ascii=True),
             name='Response',
             attachment_type=AttachmentType.JSON,
             extension='.json'
         )
+
+
+def api_request(endpoint, method, data=None, params=None):
+    url = base_url + endpoint
+    with allure.step("API request"):
+        response = requests.request(method, url, data=data, params=params)
+        response_attaching(response)
         return response
 
 
