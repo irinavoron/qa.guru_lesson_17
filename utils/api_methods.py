@@ -16,3 +16,15 @@ def get_api_request(endpoint, **kwargs):
             extension='.json'
         )
         return response
+
+
+def post_api_request(endpoint, payload):
+    with allure.step('API request'):
+        response = requests.post(url + endpoint, payload)
+        allure.attach(
+            body=json.dumps(response.json(), indent=4, ensure_ascii=True),
+            name='Response',
+            attachment_type=AttachmentType.JSON,
+            extension='.json'
+        )
+        return response

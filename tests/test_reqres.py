@@ -3,7 +3,9 @@ from jsonschema import validate
 from schemas import list_users_schema, single_user_schema, create_schema, update_schema, register_successful_schema, \
     register_unsuccessful_schema
 
-from utils.api_methods import get_api_request
+from utils.api_methods import get_api_request, post_api_request
+
+url = 'https://reqres.in'
 
 endpoint_users = '/api/users'
 endpoint_single_user = '/api/users/2'
@@ -54,13 +56,17 @@ def test_user_not_found_empty_response_body():
 
 
 def test_create_status_code():
-    response = requests.post(url + endpoint_users, {'name': 'morpheus', 'job': 'leader'})
+    response = post_api_request(endpoint=endpoint_users, payload={'name': 'morpheus', 'job': 'leader'})
 
     assert response.status_code == 201
 
 
 def test_create_json_schema():
-    response_body = requests.post(url + endpoint_users, {'name': 'morpheus', 'job': 'leader'}).json()
+    response_body = (post_api_request(
+        endpoint=endpoint_users,
+        payload={'name': 'morpheus', 'job': 'leader'})
+                     .json()
+                     )
 
     validate(response_body, create_schema)
 
@@ -68,7 +74,7 @@ def test_create_json_schema():
 def test_create_name_and_job_in_response():
     name = 'morpheus'
     job = 'leader'
-    response = requests.post(url + endpoint_users, {'name': name, 'job': job})
+    response = post_api_request(endpoint=endpoint_users, payload={'name': name, 'job': job})
     body = response.json()
     assert body['name'] == name
     assert body['job'] == job
